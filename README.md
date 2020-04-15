@@ -105,4 +105,4 @@ The tutorial package contains the powerpoint slides that I used to teach the cou
 
 \- The R scripts that were provided to the participants of the course did not contain the solutions to the tasks that participants had to complete. 
 
-\- The powerpoint template and a few figures that I used in the lecture were taken (often with modifications) from Lecture 14 of the "introduction to information retrieval" course by C. Manning and P. Nayak.
+\- The powerpoint template and a few figures that I used in the lecture were taken (or adapted) from Lecture 14 of the "introduction to information retrieval" course by C. Manning and P. Nayak.

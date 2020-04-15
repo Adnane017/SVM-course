@@ -6,18 +6,6 @@
 ####################################################################
 
 #################################################
-# Installing necessary libraries 
-#################################################
-
-install.packages(c("e1071", 
-                   "kernlab",
-                   "caret", 
-                   "parallel",
-                   "foreach",
-                   "doParallel",
-                   "tictoc"))
-
-#################################################
 # Loading necessary libraries 
 #################################################
 
@@ -25,7 +13,7 @@ install.packages(c("e1071",
 setwd('~/PostDoc Sheffield/Teaching/ML workshop/SVM')
 
 ### Load libraries
-library(e1071)    # To run SVMs
+library(e1071) # To run SVMs
 library(kernlab)	# Another SVM package
 library(caret)		# To train SVM and other ML algorithms 
 library(parallel) # For parallel processing						
@@ -45,6 +33,8 @@ registerDoParallel(cl)
 # Sec.1: Maximum margin classifier with linearly 
 #         separable classes 
 #################################################
+
+############ Q.1 ############
 
 ### Simulating a dataset that is linearly separable classes 
 set.seed(10)
@@ -67,8 +57,11 @@ legend(-1.7, 3, pch=c(19,19), legend=c("Y = -1", "Y = 1"),
 # resp Y before fitting the maximum margin classifier
 dat = data.frame(x = x, y = as.factor(y)) 
 
-# Model fit 
-svmfit.10 = svm(y~., data = dat, kernel = "linear", cost = 10, scale = FALSE) 
+############ Q.2 ############
+
+# Model fit by inputing the data as a dataframe 
+svmfit.10 = svm(y~., data = dat, kernel = "linear", cost = 10,
+                scale = FALSE) 
 # => scale=FALSE tells the svm() function to not standarize 
 #    each feature
 ### Important note:
@@ -89,8 +82,18 @@ plot(svmfit.10, dat)
 #    Can be used to obtain a quick plot. The support vectors are 
 #    plotted as crosses (there are two here)
 
+################################################################################
+### Task (to complete): Model fit by inputing feature matrix and response vector 
+svmfit.10 = svm(x = x, y = as.factor(y), kernel = "linear", 
+                cost = 10, scale = FALSE) 
+################################################################################
+
+############ Q.3 ############
+
 # Display the indices of the support vectors (2 SVs here)
 svmfit.10$index 
+
+############ Q.4 ############
 
 ### Making a nicer plot to display the SV classifier
 plot_SVM = function(data, sv.fit, n = 49){
@@ -114,7 +117,7 @@ plot_SVM = function(data, sv.fit, n = 49){
   points(x, col = y+3, pch = 19, cex = 1.3) 
   # To highlight the support vectors (cex=2.1 to increase the points 
   # size)
-  points(x[sv.fit$index, ], pch = 5, cex = 2.1) 
+  #points(x[sv.fit$index, ], pch = 5, cex = 2.1) 
 
   # To add the decision boundary and the margins
   # First, compute the estimates of the coeffs beta's 
@@ -136,6 +139,10 @@ plot_SVM(dat, svmfit.10, 49)
 #         separable classes 
 #################################################
 
+### Important note: C is 1/cost in the svm() function
+
+############ Q.1 ############
+
 ### Simulating a new dataset that is hardly linearly separable
 set.seed(10)
 x = matrix(rnorm(20*2), ncol = 2)
@@ -155,6 +162,8 @@ legend(-1.7, 3, pch=c(19,19), legend=c("Y = -1", "Y = 1"),
 
 # Create a dataframe out of the matrix X and the resp Y
 dat2 = data.frame(x = x, y = as.factor(y)) 
+
+############ Q.2 ############
 
 ### Fitting a support vector classifier using a large cost (=100), 
 ### which is equivalent to having a small C value (thus the classifier
@@ -179,9 +188,37 @@ plot_SVM(dat2, svmfit.100, 49)
 title(main = "cost = 100 (i.e. C = 0.01)")
 par(mfrow=c(1,1))
 
+############ Q.3 ############
+
+################################################################################
+### Task (to complete): Fit a support vector classifier using annother cose 
+
+# Fitting a support vector classifier using an intermediate 
+# cost (=1), which is equivalent to having an intermediate 
+# C value
+svmfit.1 = svm(y~., data = dat2, kernel = "linear", 
+                cost = 1, scale = FALSE) 
+
+# Generate the plots for the new SV classifiers and put them  
+# side-by-side 
+par(mfrow=c(1,3))    
+# First plot
+plot_SVM(dat2, svmfit.01, 49)
+title(main = "cost = 0.1 (i.e. C = 10)")
+# Second plot
+plot_SVM(dat2, svmfit.1, 49)
+title(main = "cost = 1 (i.e. C = 1)")
+# Third plot
+plot_SVM(dat2, svmfit.100, 49)
+title(main = "cost = 100 (i.e. C = 0.01)")
+par(mfrow=c(1,1))
+################################################################################
+
 ###########################################################
 # Sec.3: Choosing the cost parameter using cross-validation
 ###########################################################
+
+############ Q.1 ############
 
 ### Simulating a larger dataset 
 N = 200
@@ -204,18 +241,24 @@ legend(-2.3, 3.7, pch=c(19,19), legend=c("Y = -1", "Y = 1"),
 # Create a dataframe out of the matrix X and the resp Y
 dat3 = data.frame(x = x, y = as.factor(y)) 
 
+############ Q.2 ############
+
 # Divide the data into a traing and a test set
 set.seed(1)
 Ind_train = sample(N, N/2) # sample 100 training indices 
 dat3.train = dat3[Ind_train, ]
 dat3.test = dat3[-Ind_train, ]
 
+############ Q.3 ############
+
 ### 1st method: using tune()
 ?tune
 # We will use CV to decide which values of cost to use
 set.seed(1)
+tic() # tic()-toc() is for measuring run time
 tune.out = tune(svm, y~., data = dat3.train, kernel = "linear", 
                 ranges = list(cost = c(0.1, 0.5, 1, 2, 5, 10, 50, 100)))
+toc()
 # => 10 is the default number of folds in cross-validation
 
 # Display the results of the CV 
@@ -270,8 +313,10 @@ plot_SVM = function(data, sv.fit, n = 49){
 }
 plot_SVM(dat3.test, best_svm)
 
+############ Q.4 ############
+
 ### 2nd method: using train() from the caret package. train() 
-### allows parallelisation
+### allows running on multiple CPU cores for faster training 
 
 # Running CV
 set.seed(1)
@@ -296,6 +341,8 @@ test.error # the test error is 20%
 #         separable classes 
 ###################################################
 
+############ Q.1 ############
+
 # Simulating the non-linearly seperable data that we will use 
 set.seed(1)
 x = matrix(rnorm(200*2), ncol = 2)
@@ -311,6 +358,8 @@ legend(-4, 4.8, pch=c(19,19), legend=c("Y = -1", "Y = 1"),
 
 # Create a dataframe out of the matrix X and the resp Y
 dat4 = data.frame(x = x, y = as.factor(y)) 
+
+############ Q.2 ############
 
 ### Fitting a support vector classifier using cost=1, 
 svmfit_gamma_1_cost_1 = svm(y~., data = dat4, kernel = "radial",  gamma = 1, cost = 1) 
@@ -356,6 +405,31 @@ table(predict = ypred, truth = dat4$y) # Evaluation of the SVM on the training d
 error = 20/200 # Training error rate
 error # the training error (10%) is quite high here
 
+############ Q.3 ############
+
+###################################################################################
+### Task (to complete): Fit support vector machines with different parameter values 
+
+# Fitting an SVM with a radial kernel using cost=100 (i.e. C=0.01)  
+svmfit_gamma_1_cost_100 = svm(y~., data = dat4, kernel = "radial",  gamma = 1, cost = 100) 
+
+# Fitting an SVM with a radial kernel using gamma=10 
+svmfit_gamma_10_cost_1 = svm(y~., data = dat4, kernel = "radial",  gamma = 10, cost = 1) 
+
+# Generate the plots for the new SV classifiers and put them  
+# side-by-side 
+par(mfrow=c(1,3))    
+# First plot
+plot_SVM_nonLinear(dat4, svmfit_gamma_1_cost_1, 100)
+title(main = "gamma = 1 and cost = 1")
+# Second plot
+plot_SVM_nonLinear(dat4, svmfit_gamma_1_cost_100, 100)
+title(main = "gamma = 1 and cost = 100")
+# Third plot
+plot_SVM_nonLinear(dat4, svmfit_gamma_10_cost_1, 100)
+title(main = "gamma = 10 and cost = 1")
+par(mfrow=c(1,1))
+###########################################################
 
 ###########################################################
 # Sec.5: Choosing the parameter values of an SVM using 
@@ -417,4 +491,3 @@ test.error # the test error is 14%
 
 # Plot the obtained SVM 
 plot_SVM_nonLinear(dat4.test, svm.fit, n = 100)
-

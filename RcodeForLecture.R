@@ -10,7 +10,7 @@
 #################################################
 
 ### Set the working directory
-setwd('~/PostDoc Sheffield/Teaching/ML workshop/SVM')
+setwd("~/Teaching/SVM_course_SAVworkshop") 
 
 ### Load libraries
 library(e1071) # To run SVMs

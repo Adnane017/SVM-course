@@ -43,10 +43,10 @@ registerDoParallel(cl)
 ####################################################################
 
 # change to your path
-setwd("~/Teaching/SVM_course_MLworkshop") 
+setwd("~/Teaching/SVM_course_SAVworkshop") 
 
 # load the dataset and define the training and test sets
-load("SPData2.Rda")
+load("SPData2.rda")
 
 # Number of observations
 N = nrow(SPData2)
